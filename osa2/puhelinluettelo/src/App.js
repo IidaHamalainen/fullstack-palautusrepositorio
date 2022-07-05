@@ -8,6 +8,8 @@ const App = (props) => {
   const [newNumber, setNewNumber] = useState('')
   const [newFilter, setFilter] = useState('')
   const [filteredPersons, setFilteredPersons] = useState([])
+  const [message, setMessage] = useState(null)
+
 
   useEffect(() => {
     personService
@@ -42,6 +44,10 @@ const App = (props) => {
         setPersons(persons.concat(returnedPerson))
         setNewName('')
         setNewNumber('')
+        setMessage(`Added ${returnedPerson.name} to phonebook`)
+        setTimeout(() => {
+          setMessage(null)
+        }, 5000)
       })
         
     }
@@ -50,11 +56,16 @@ const App = (props) => {
   const deletePerson = (id, name) => {
     if (window.confirm(`Delete ${name}?`)) {
       personService.remove(id).
-      then((response) => {
+      then(() => {
         const updatedList = persons.filter((person) => person.id !== id)
       
       setPersons(updatedList)
       setFilteredPersons(updatedList)
+      
+      setMessage(`Removed ${name} from phonebook`)
+        setTimeout(() => {
+          setMessage(null)
+        }, 5000)
       })
     }
   }
@@ -77,6 +88,8 @@ const App = (props) => {
   return (
     <div>
       <h1>Phonebook</h1>
+
+      <Notification message={message}/>
 
       <Filter value={newFilter} onChange={filterPersons} />
 
@@ -130,6 +143,17 @@ const PersonForm = (props) => {
 
     <button type="submit">add</button> 
   </form>
+  )
+}
+const Notification = ({message}) => {
+  if (message === null) {
+    return null
+  }
+
+  return (
+    <div className="message">
+      {message}
+    </div>
   )
 }
 
