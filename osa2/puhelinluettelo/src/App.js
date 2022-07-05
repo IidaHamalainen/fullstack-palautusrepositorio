@@ -1,11 +1,24 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import personService from './services/persons'
+import axios from 'axios'
 
 const App = (props) => {
-  const [persons, setPersons] = useState(props.persons) 
+  const [persons, setPersons] = useState([]) 
   const [newName, setNewName] = useState('')
   const [newNumber, setNewNumber] = useState('')
   const [newFilter, setFilter] = useState('')
   const [filteredPersons, setFilteredPersons] = useState([])
+
+  useEffect(() => {
+    personService
+    .getAll()
+    .then(initialPersons => {
+      setPersons(initialPersons)
+    })
+    
+  }, [])
+
+  console.log('render', persons.length, 'persons')
 
   const addPerson = (event) => {
     event.preventDefault()
@@ -22,9 +35,27 @@ const App = (props) => {
       return;
       
     } else {
-    setPersons(persons.concat(personObject))
-    setNewName('')
-    setNewNumber('')
+
+      personService
+      .create(personObject)
+      .then(returnedPerson => {
+        setPersons(persons.concat(returnedPerson))
+        setNewName('')
+        setNewNumber('')
+      })
+        
+    }
+    
+  }
+  const deletePerson = (id, name) => {
+    if (window.confirm(`Delete ${name}?`)) {
+      personService.remove(id).
+      then((response) => {
+        const updatedList = persons.filter((person) => person.id !== id)
+      
+      setPersons(updatedList)
+      setFilteredPersons(updatedList)
+      })
     }
   }
 
@@ -55,20 +86,24 @@ const App = (props) => {
           
       <h2>Numbers</h2>
       
-      <Persons filteredPersons={filteredPersons}/>
+      <Persons filteredPersons={filteredPersons} deletePerson={deletePerson}/>
       
     </div>
   )
 
 }
 
-const Persons = ({filteredPersons}) => {
+
+const Persons = ({filteredPersons, deletePerson}) => {
   
   return (
     <div>
       {filteredPersons.map((person) => (
       <div key={person.name}> 
       {person.name} {person.number} 
+      <button onClick={() => deletePerson(person.id, person.name)}>
+        Delete info
+      </button>
       </div>))}
     </div>
   )
