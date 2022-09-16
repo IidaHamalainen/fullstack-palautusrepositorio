@@ -29,6 +29,7 @@ const App = (props) => {
       name: newName,
       number: newNumber
     }
+    
     const listaSisaltaa = persons.some((person) => person.name === newName);
   
     if (listaSisaltaa) {
@@ -45,6 +46,13 @@ const App = (props) => {
         setNewName('')
         setNewNumber('')
         setMessage(`Added ${returnedPerson.name} to phonebook`)
+        setTimeout(() => {
+          setMessage(null)
+        }, 5000)
+      })
+      .catch(error => {
+        setMessage((error.response.data.error))
+        console.log(error.response.data.error)
         setTimeout(() => {
           setMessage(null)
         }, 5000)
